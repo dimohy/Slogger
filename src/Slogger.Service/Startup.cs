@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Slogger.Data;
 
-namespace Slogger
+namespace Slogger.Service
 {
     public class Startup
     {
