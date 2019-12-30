@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Slogger.Engine.FileStorage"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{41FDB802-458F-4A6F-8EBD-9183CF943C66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slogger.Test", "Slogger.Test\Slogger.Test.csproj", "{3BFC73C4-3A38-40C2-965C-9AE08AD5AAD6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Slogger.Test", "src\Slogger.Test\Slogger.Test.csproj", "{3BFC73C4-3A38-40C2-965C-9AE08AD5AAD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
