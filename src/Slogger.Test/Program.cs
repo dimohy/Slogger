@@ -1,5 +1,6 @@
 ﻿using Scrypt;
 using Slogger.Engine.FileStorage;
+using Slogger.Engine.Storage;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,23 +18,58 @@ namespace Slogger.Test
         {
             var testFunctions = new Dictionary<string, Func<Task>>
             {
-                ["Test0"] = Test_Scrypt,
-                ["Test1"] = Test_SystemTextJsonSerialize,
-                ["Test2"] = Test_Utf8JsonSerialize,
-                ["Test3"] = Test_SloggerFileStorageAsync,
+                ["Security_1"] = Test_Scrypt,
+                ["Serialization_1"] = Test_SystemTextJsonSerialize,
+                ["Serialization_2"] = Test_Utf8JsonSerialize,
+                ["FileStorage_1"] = Test_SloggerFileStorage_InitAsync,
+                ["FileStorage_2"] = Test_SloggerFileStorage_UpdateAuthorAsync,
+                ["FileStorage_3"] = Test_SloggerFileStorage_GetAuthorsAsync,
             };
-
-            await testFunctions["Test3"]();
+            
+            await testFunctions["FileStorage_3"]();
         }
 
-        private static async Task Test_SloggerFileStorageAsync()
+        private static async Task Test_SloggerFileStorage_GetAuthorsAsync()
         {
             var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
-            Console.WriteLine(rootPath);
+            var s = FileStorage.Get(rootPath);
 
-            var s = FileStorage.Create(rootPath);
+            var list = s.GetAuthorsAsync();
+            await foreach (var author in list)
+            {
+                Console.WriteLine(author.HashedPassword);
+            }
+        }
 
-            await s.RefreshCacheAsync();
+        private static async Task Test_SloggerFileStorage_UpdateAuthorAsync()
+        {
+            var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
+            var s = FileStorage.Get(rootPath);
+
+            var author = new Author
+            {
+                Id = "dimohy@naver.com",
+                Name = "디모이",
+                Description = "디모이는 현재 Slogger를 개발 중이며, Slogger가 .NET Blazor 기반 블로그 시스템으로 자리 잡기를 희망하고 있다.",
+                Email = "dimohy@naver.com",
+                IsAdmin = true,
+                Password = "dimohy"
+            };
+            await s.UpdateAuthorAsync(author);
+        }
+
+        private static async Task Test_SloggerFileStorage_InitAsync()
+        {
+            var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
+            var s = FileStorage.Get(rootPath);
+
+            var result = await s.IsInitializedAsync();
+            if (result == true)
+                return;
+
+            Console.WriteLine(result);
+
+            await s.ReinitializeAsync("어드민", "admin2");
         }
 
         static async Task Test_Scrypt()

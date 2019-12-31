@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Slogger.Engine.Entities
+namespace Slogger.Engine.Storage
 {
     /// <summary>
     /// Slog Comment Information
     /// </summary>
-    public class Comment : BaseEntity
+    public class Comment : Entity<Comment>
     {
         /// <summary>
         /// Comment ID
@@ -16,7 +16,7 @@ namespace Slogger.Engine.Entities
         /// <summary>
         /// Sequence number of the comment
         /// </summary>
-        public int Seq { get; set; }
+        public int? Seq { get; set; }
         /// <summary>
         /// Slog ID
         /// </summary>

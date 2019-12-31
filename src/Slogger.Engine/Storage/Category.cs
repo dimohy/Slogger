@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Slogger.Engine.Entities
+namespace Slogger.Engine.Storage
 {
     /// <summary>
     /// Category Information
     /// </summary>
-    public class Category : BaseEntity
+    public class Category : Entity<Category>
     {
         /// <summary>
         /// Category Id

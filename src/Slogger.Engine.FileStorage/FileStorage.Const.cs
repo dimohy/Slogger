@@ -31,6 +31,7 @@ namespace Slogger.Engine.FileStorage
             // Slogger metadata directory and files
             public static readonly string SloggerMetadataPath = $"{DataPath}/Metadata";
             public static readonly string SloggerSettingsFilename = $"{SloggerMetadataPath}/Settings.json";
+            public static readonly string SloggerInitializedFilename = $"{SloggerMetadataPath}/Initialization.txt";
 
             // Slogger cache directory and files {{{
             public static readonly string CachePath = $"{DataPath}/Cache";
@@ -53,7 +54,7 @@ namespace Slogger.Engine.FileStorage
         }
     }
 
-    public static class StringExpansion
+    public static class StringExtension
     {
         public static string Format(this string @this, params object[] @params)
         {

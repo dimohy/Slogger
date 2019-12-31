@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Slogger.Engine.Entities
+namespace Slogger.Engine.Storage
 {
     /// <summary>
     /// Slog Information
     /// </summary>
-    public class Slog : BaseEntity
+    public class Slog : Entity<Slog>
     {
         /// <summary>
         /// Slog ID

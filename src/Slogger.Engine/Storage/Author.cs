@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
-namespace Slogger.Engine.Entities
+namespace Slogger.Engine.Storage
 {
     /// <summary>
     /// Author Information
     /// </summary>
-    public class Author : BaseEntity
+    public class Author : Entity<Author>
     {
         /// <summary>
         /// Author ID
@@ -25,7 +26,20 @@ namespace Slogger.Engine.Entities
         /// Author Description
         /// </summary>
         public string Description { get; set; }
-        // Author's Authentication Passwords
-        public string Passwords { get; set; }
+        // Author's Authentication Password
+        [JsonIgnore]
+        public string Password { get; set; }
+        /// <summary>
+        /// Encrypted password
+        /// </summary>
+        public string HashedPassword { get; set; }
+        /// <summary>
+        /// Whether you are an administrator.
+        /// </summary>
+        public bool? IsAdmin { get; set; }
+        /// <summary>
+        /// Joined team list
+        /// </summary>
+        public IList<string> Teams { get; set; }
     }
 }

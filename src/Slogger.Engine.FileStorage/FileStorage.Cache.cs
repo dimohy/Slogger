@@ -6,7 +6,7 @@ namespace Slogger.Engine.FileStorage
 {
     public partial class FileStorage
     {
-        class FileStorageCache
+        class Cache
         {
         }
     }

@@ -1,10 +1,10 @@
-﻿using Slogger.Engine.Entities;
+﻿using Slogger.Engine.Storage;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Slogger.Engine
+namespace Slogger.Engine.Storage
 {
     /// <summary>
     /// Interface definitions that control the Slogger storage.
@@ -25,9 +25,9 @@ namespace Slogger.Engine
         /// The author confirms the authentication with a password.
         /// </summary>
         /// <param name="authorId"></param>
-        /// <param name="passwords"></param>
+        /// <param name="password"></param>
         /// <returns></returns>
-        Task<bool> CheckAuthorAuthAsync(string authorId, string passwords);
+        Task<bool> CheckAuthorAuthAsync(string authorId, string password);
         /// <summary>
         /// Get author information.
         /// </summary>
@@ -119,6 +119,33 @@ namespace Slogger.Engine
         /// The cache should be created automatically by the IStorage command. RefreshCache is used when there is no cache information or when you want to delete and recreate the cache information.
         /// </summary>
         Task RefreshCacheAsync();
+
+        /// <summary>
+        /// Whether storage is initialized.
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> IsInitializedAsync();
+
+        /// <summary>
+        /// Reset Slogger settings and refresh the cache.
+        /// </summary>
+        /// <param name="adminName"></param>
+        /// <param name="adminPassword"></param>
+        /// <returns></returns>
+        Task ReinitializeAsync(string adminName, string adminPassword);
+
+        /// <summary>
+        /// Get Slogger configuration information.
+        /// </summary>
+        /// <returns></returns>
+        Task<SloggerSettings> GetSloggerSettingsAsync();
+
+        /// <summary>
+        /// Create or update Slogger settings.
+        /// </summary>
+        /// <param name="sloggerSettings"></param>
+        /// <returns></returns>
+        Task UpdateSloggerSettingsAsync(SloggerSettings sloggerSettings);
     }
 
     /// <summary>

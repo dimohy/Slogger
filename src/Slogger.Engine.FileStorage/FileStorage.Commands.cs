@@ -1,4 +1,5 @@
-﻿using Slogger.Engine.Entities;
+﻿using Slogger.Engine.Authentication;
+using Slogger.Engine.Storage;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,40 +12,80 @@ namespace Slogger.Engine.FileStorage
 {
     public partial class FileStorage
     {
+        public async Task<bool> IsInitializedAsync()
+        {
+            var falseTask = Task.FromResult(false);
+
+            if (File.Exists(Const.SloggerInitializedFilename) == false)
+                return await falseTask;
+
+            var result = (await File.ReadAllTextAsync(Const.SloggerInitializedFilename)).Trim();
+            if (result != "OK")
+                return await falseTask;
+
+            return await Task.FromResult(true); ;
+        }
+
+        public async Task ReinitializeAsync(string adminName, string adminPassword)
+        {
+            // Delete Slogger Settings
+            if (File.Exists(Const.SloggerSettingsFilename) == true)
+                File.Delete(Const.SloggerSettingsFilename);
+
+            // Create Admin Account
+            var author = new Author
+            {
+                Id = "admin",
+                Password = adminPassword,
+                Name = adminName,
+                IsAdmin = true,
+            };
+            await UpdateAuthorAsync(author);
+
+            // Refresh Cache
+            await RefreshCacheAsync();
+
+            // Initialization complete
+            CreateIfNonExistPath(Const.SloggerInitializedFilename);
+            await File.WriteAllTextAsync(Const.SloggerInitializedFilename, "OK");
+        }
+
+        public async Task<SloggerSettings> GetSloggerSettingsAsync()
+        {
+            return await ReadEntityAsync<SloggerSettings>(Const.SloggerSettingsFilename);
+        }
+
+        public async Task UpdateSloggerSettingsAsync(SloggerSettings sloggerSettings)
+        {
+            await WriteEntityAsync<SloggerSettings>(Const.SloggerSettingsFilename, sloggerSettings);
+        }
+
+        public async Task<bool> CheckAuthorAuthAsync(string authorId, string password)
+        {
+            var author = await GetAuthorAsync(authorId);
+            return Password.Compare(password, author.HashedPassword);
+        }
+
+        /// <summary>
+        /// TODO: Must be implemented!
+        /// </summary>
+        /// <returns></returns>
         public async Task RefreshCacheAsync()
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("ko-KR");
-
-            throw new SlogFileNotFoundException();
-
-            var filename = Const.CacheSlogFilenameFormat.Format("dimohy@naver.com", 2019, 12, "dimohy@naver.com_201912301817");
-            Console.WriteLine($"{rootPath}/{filename}");
-
-            var fileInfo = new FileInfo(filename);
-            var directory = fileInfo.Directory;
-            if (directory.Exists == false)
-                directory.Create();
-
-            fileInfo.Create();
-
             await Task.CompletedTask;
         }
 
-        public Task<bool> CheckAuthorAuthAsync(string authorId, string passwords)
+        public async Task<Author> GetAuthorAsync(string authorId)
         {
-            throw new NotImplementedException();
+            var filename = Const.AuthorFilenameFormat.Format(authorId);
+            return await ReadEntityAsync<Author>(filename);
         }
 
-        public Task<Author> GetAuthorAsync(string authorId)
+        public async IAsyncEnumerable<Author> GetAuthorsAsync()
         {
-
-
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Author> GetAuthorsAsync()
-        {
-            throw new NotImplementedException();
+            var authorFiles = Directory.EnumerateFiles(Const.AuthorsPath, "*.json");
+            foreach (var authorFile in authorFiles)
+                yield return await ReadEntityAsync<Author>(authorFile);
         }
 
         public IAsyncEnumerable<Category> GetCategoriesAsync(string parentCategory = "")
@@ -58,6 +99,16 @@ namespace Slogger.Engine.FileStorage
         }
 
         public IAsyncEnumerable<Comment> GetCommentsAsync(string slogId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateCommentAsync(Comment comment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateSlogAsync(Slog slog)
         {
             throw new NotImplementedException();
         }
@@ -97,22 +148,19 @@ namespace Slogger.Engine.FileStorage
             throw new NotImplementedException();
         }
 
-        public Task UpdateAuthorAsync(Author author)
+        public async Task UpdateAuthorAsync(Author author)
         {
-            throw new NotImplementedException();
+            CreateIfNonExistPath(Const.AuthorFilenameFormat.Format(author.Id));
+
+            // Apply the changed password.
+            if (string.IsNullOrWhiteSpace(author.Password) == false)
+                author.HashedPassword = Password.Encode(author.Password);
+
+            var filename = Const.AuthorFilenameFormat.Format(author.Id);
+            await WriteEntityAsync<Author>(filename, author);
         }
 
         public Task UpdateCategoryAsync(Category category)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateCommentAsync(Comment comment)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateSlogAsync(Slog slog)
         {
             throw new NotImplementedException();
         }
