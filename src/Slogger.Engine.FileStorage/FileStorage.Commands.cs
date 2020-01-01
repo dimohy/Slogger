@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,6 +76,16 @@ namespace Slogger.Engine.FileStorage
             await Task.CompletedTask;
         }
 
+        public async Task UpdateAuthorAsync(Author author)
+        {
+            // Apply the changed password.
+            if (string.IsNullOrWhiteSpace(author.Password) == false)
+                author.HashedPassword = Password.Encode(author.Password);
+
+            var filename = Const.AuthorFilenameFormat.Format(author.Id);
+            await WriteEntityAsync<Author>(filename, author);
+        }
+
         public async Task<Author> GetAuthorAsync(string authorId)
         {
             var filename = Const.AuthorFilenameFormat.Format(authorId);
@@ -86,14 +97,52 @@ namespace Slogger.Engine.FileStorage
             var authorFiles = Directory.EnumerateFiles(Const.AuthorsPath, "*.json");
             foreach (var authorFile in authorFiles)
                 yield return await ReadEntityAsync<Author>(authorFile);
+
         }
 
-        public IAsyncEnumerable<Category> GetCategoriesAsync(string parentCategory = "")
+        public async Task<int> GetTotalAuthorsAsync()
         {
-            throw new NotImplementedException();
+            return await Task.Run(() =>
+            {
+                var authorFiles = Directory.EnumerateFiles(Const.AuthorsPath, "*.json");
+                return authorFiles.Count();
+            });
         }
 
-        public Task<Category> GetCategoryAsync(string categoryId)
+        public async Task UpdateSlogAsync(Slog slog)
+        {
+            // When first created
+            if (string.IsNullOrWhiteSpace(slog.Id) == true)
+            {
+                slog.Id = $"{slog.AuthorId}_{DateTime.Now.ToString("yyyyMMddHHmm")}";
+                slog.Seq = await LinkSeqAsync(slog.Id);
+                slog.Uuid = await LinkUuidAsync(slog.Id);
+            }
+
+            var year = slog.Id[^12..^8];
+            var month = slog.Id[^8..^6];
+            var filename = Const.ContentsAuthorSlogFilenameFormat.Format( // authorID, year, month, slogID
+                slog.AuthorId, year, month, slog.Id);
+
+            await WriteEntityAsync<Slog>(filename, slog);
+        }
+
+        public async Task<Slog> GetSlogAsync(SlogKeyType keyType, string key)
+        {
+            if (keyType == SlogKeyType.Seq)
+                key = await GetSlogIdWithSeqAsync(int.Parse(key));
+            else if (keyType == SlogKeyType.Uuid)
+                key = await GetSlogIdWithUuidAsync(key);
+
+            var authorId = key[0..^13];
+            var year = key[^12..^8];
+            var month = key[^8..^6];
+            var filename = Const.ContentsAuthorSlogFilenameFormat.Format( // authorID, year, month, slogID
+                authorId, year, month, key);
+            return await ReadEntityAsync<Slog>(filename);
+        }
+
+        public IAsyncEnumerable<Slog> GetSlogsAsync(SlogSearchFilter searchFilter, string filter, SlogMode mode, int startIndex = 0, int count = 1)
         {
             throw new NotImplementedException();
         }
@@ -108,58 +157,26 @@ namespace Slogger.Engine.FileStorage
             throw new NotImplementedException();
         }
 
-        public Task UpdateSlogAsync(Slog slog)
+        public async Task SetAdminAsync(string authorId, bool isYn)
+        {
+            var author = new Author
+            {
+                Id = authorId,
+                IsAdmin = isYn
+            };
+            await UpdateAuthorAsync(author);
+        }
+
+        public IAsyncEnumerable<Category> GetCategoriesAsync(string parentCategory = "")
         {
             throw new NotImplementedException();
         }
 
-        public Task<Slog> GetSlogAsync(SlogKeyType keyType, string key)
+        public Task<Category> GetCategoryAsync(string categoryId)
         {
             throw new NotImplementedException();
+
         }
-
-        public IAsyncEnumerable<Slog> GetSlogsAsync(SlogSearchFilter searchFilter, string filter, SlogMode mode, int startIndex = 0, int count = 1)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> GetTotalAuthorsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> LinkSlogSeqAsync(string slogId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task LinkTagsAsync(string slogId, string[] tags)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> LinkUuidAsync(string slogId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetAdminAsync(string authorId, bool isYn)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task UpdateAuthorAsync(Author author)
-        {
-            CreateIfNonExistPath(Const.AuthorFilenameFormat.Format(author.Id));
-
-            // Apply the changed password.
-            if (string.IsNullOrWhiteSpace(author.Password) == false)
-                author.HashedPassword = Password.Encode(author.Password);
-
-            var filename = Const.AuthorFilenameFormat.Format(author.Id);
-            await WriteEntityAsync<Author>(filename, author);
-        }
-
         public Task UpdateCategoryAsync(Category category)
         {
             throw new NotImplementedException();

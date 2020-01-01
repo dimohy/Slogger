@@ -13,5 +13,9 @@ namespace Slogger.Engine.Storage
         /// Slogger Name
         /// </summary>
         public string SloggerName { get; set; }
+        /// <summary>
+        /// Set language (Default is en-US)
+        /// </summary>
+        public string Language { get; set; }
     }
 }

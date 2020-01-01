@@ -95,6 +95,7 @@ namespace Slogger.Engine.Storage
         /// </summary>
         /// <param name="comment"></param>
         Task UpdateCommentAsync(Comment comment);
+        /* Changed : The connection functionality is changed by batching in the UpdateSlog method.
         /// <summary>
         /// Link tags to Slog.
         /// </summary>
@@ -113,6 +114,7 @@ namespace Slogger.Engine.Storage
         /// <param name="slogId"></param>
         /// <returns></returns>
         Task<string> LinkUuidAsync(string slogId);
+        */
         /// <summary>
         /// Refresh cache data.
         /// 

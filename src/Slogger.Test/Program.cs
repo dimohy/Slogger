@@ -24,9 +24,43 @@ namespace Slogger.Test
                 ["FileStorage_1"] = Test_SloggerFileStorage_InitAsync,
                 ["FileStorage_2"] = Test_SloggerFileStorage_UpdateAuthorAsync,
                 ["FileStorage_3"] = Test_SloggerFileStorage_GetAuthorsAsync,
+                ["FileStorage_4"] = Test_SloggerFileStorage_UpdateSlogAsync,
+                ["FileStorage_5"] = Test_SloggerFileStorage_GetSlogAsync,
             };
             
-            await testFunctions["FileStorage_3"]();
+            await testFunctions["FileStorage_5"]();
+        }
+
+        private static async Task Test_SloggerFileStorage_GetSlogAsync()
+        {
+            var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
+            var s = FileStorage.Get(rootPath);
+
+            var slog = await s.GetSlogAsync(SlogKeyType.Id, "dimohy@naver.com_202001012312");
+            Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
+
+            slog = await s.GetSlogAsync(SlogKeyType.Seq, "2");
+            Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
+
+            slog = await s.GetSlogAsync(SlogKeyType.Uuid, "3e7ed423-db34-4ff9-bcfa-e35f9f190604");
+            Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
+        }
+
+        private static async Task Test_SloggerFileStorage_UpdateSlogAsync()
+        {
+            var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
+            var s = FileStorage.Get(rootPath);
+
+            var slog = new Slog
+            {
+                AuthorId = "dimohy@naver.com",
+                Subject = "제목",
+                Contents = "내용",
+                CategoryPath = "test",
+                Tags = new List<string> { "test" }
+            };
+
+            await s.UpdateSlogAsync(slog);
         }
 
         private static async Task Test_SloggerFileStorage_GetAuthorsAsync()

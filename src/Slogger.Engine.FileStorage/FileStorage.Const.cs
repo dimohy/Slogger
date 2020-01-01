@@ -19,6 +19,7 @@ namespace Slogger.Engine.FileStorage
             public static readonly string AuthorFilenameFormat = $"{AuthorsPath}/{{0}}.json";
             public static readonly string AuthorFilesPathFormat = $"{AuthorsPath}/{{0}}.files";
             public static readonly string AuthorAvatarFilename = $"{AuthorFilesPathFormat}/Avatar.png";
+            public static readonly string AuthorCategoryFilename = $"{AuthorFilesPathFormat}/Category.json";
 
             // Slog Contents directory and files
             public static readonly string ContentsPath = $"{DataPath}/Contents";
@@ -43,13 +44,17 @@ namespace Slogger.Engine.FileStorage
             // Slog Cache
             public static readonly string CacheSeqFilename = $"{CachePath}/Seq.data";
             public static readonly string CacheUuidsPath = $"{CachePath}/Uuids";
-            public static readonly string CacheUUidFilenameFormat = $"{CacheUuidsPath}/{{0}}/{{1}}/{{2}}/{{3}}/{{4}}/{{5}}/{{6}}/{{7}}/{{8}}.txt";
+            public static readonly string CacheUUidFilenameFormat = $"{CacheUuidsPath}/{{0}}/{{1}}/{{2}}/{{3}}/{{4}}.txt";
             public static readonly string CacheSlogPathFormat = $"{CachePath}/{{0}}/{{1}}/{{2}}";
             public static readonly string CacheSlogFilenameFormat = $"{CacheSlogPathFormat}/{{3}}.html";
 
             // Teams Cache
             public static readonly string CacheTeamsPath = $"{CachePath}/Teams";
             public static readonly string CacheTeamsFilenameFormat = $"{CacheTeamsPath}/{{0}}.data";
+
+            // Category Cache
+            public static readonly string CacheCategoryPath = $"{CachePath}/Category";
+            public static readonly string CacheAuthorCategoryPathFormat = $"{CacheCategoryPath}/{{0}}";
             // }}}
         }
     }

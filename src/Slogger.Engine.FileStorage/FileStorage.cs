@@ -38,6 +38,9 @@ namespace Slogger.Engine.FileStorage
         private async Task WriteEntityAsync<TValue>(string filename, TValue value)
             where TValue : Entity<TValue>
         {
+            // If the file path does not exist, create it.
+            CreateIfNonExistPath(filename);
+
             // If there is an existing file, only the changed one is applied.
             if (File.Exists(filename) == true)
             {

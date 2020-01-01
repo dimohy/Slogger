@@ -26,9 +26,5 @@ namespace Slogger.Engine.Storage
         /// Parent Category ID
         /// </summary>
         public string ParentCategoryId { get; set; }
-        /// <summary>
-        /// Child Categories
-        /// </summary>
-        public IEnumerable<Category> ChildCategories { get; set; }
     }
 }
