@@ -130,7 +130,10 @@ namespace Slogger.Engine.FileStorage
         public async Task<Slog> GetSlogAsync(SlogKeyType keyType, string key)
         {
             if (keyType == SlogKeyType.Seq)
-                key = await GetSlogIdWithSeqAsync(int.Parse(key));
+            {
+                var keys = key.Split('/');
+                key = await GetSlogIdWithSeqAsync(keys[0], int.Parse(keys[1]));
+            }
             else if (keyType == SlogKeyType.Uuid)
                 key = await GetSlogIdWithUuidAsync(key);
 
@@ -142,9 +145,35 @@ namespace Slogger.Engine.FileStorage
             return await ReadEntityAsync<Slog>(filename);
         }
 
-        public IAsyncEnumerable<Slog> GetSlogsAsync(SlogSearchFilter searchFilter, string filter, SlogMode mode, int startIndex = 0, int count = 1)
+        public async IAsyncEnumerable<Slog> GetSlogsAsync(SlogSearchFilter searchFilter, string filter, SlogMode mode = SlogMode.Full, string authorId = "", int startIndex = 0, int count = 1)
         {
-            throw new NotImplementedException();
+            // Get a list of author Slogs.
+            if (string.IsNullOrWhiteSpace(authorId) == false)
+            {
+                var filename = Const.ContentAuthorSlogSeqFilename.Format(authorId);
+                using var s = File.OpenRead(filename);
+
+                var buffer = new byte[BlockSize];
+                var startOffset = s.Length - (startIndex + 1) * BlockSize;
+                var endOffset = startOffset - count * BlockSize;
+                for (var offset = startOffset; offset > endOffset && offset >= 0; offset -= BlockSize)
+                {
+                    s.Position = offset;
+
+                    var readLength = await s.ReadAsync(buffer, 0, BlockSize);
+                    if (readLength == 0)
+                        yield break;
+
+                    var slogId = GetString(buffer);
+                    yield return await GetSlogAsync(SlogKeyType.Id, slogId);
+                }
+            }
+            // Get a list of all Slogs.
+            else
+            {
+                // TODO: Must be implemented
+                yield break;
+            }
         }
 
         public IAsyncEnumerable<Comment> GetCommentsAsync(string slogId)

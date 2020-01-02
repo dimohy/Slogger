@@ -11,7 +11,12 @@ namespace Slogger.Engine.FileStorage
 {
     public partial class FileStorage : IStorage
     {
-        private string rootPath;
+        // Defines the number of bytes of a block to store Slog ID for sequential index search.
+        // [AuthorId]_[yyyyMMddHHmm] : n + 1 + 12 <= BlockSize(bytes), AuthorId <= BlockSize - 13 Bytes
+        private const int BlockSize = 48;
+
+        private readonly string rootPath;
+
 
         private FileStorage(string rootPath)
         {
@@ -81,6 +86,50 @@ namespace Slogger.Engine.FileStorage
             var path = new FileInfo(filename).Directory;
             if (path.Exists == false)
                 path.Create();
+        }
+
+        private async Task<int> LinkSeqAsync(string slogId)
+        {
+            var authorId = slogId[0..^13];
+            var filename = Const.ContentAuthorSlogSeqFilename.Format(
+                authorId);
+            CreateIfNonExistPath(filename);
+            using var s = File.OpenWrite(filename);
+            var seq = (int)(s.Length / BlockSize + 1);
+
+            var buffer = new byte[BlockSize];
+            var slogIdData = Encoding.UTF8.GetBytes(slogId);
+            slogIdData.CopyTo(buffer, 0);
+
+            s.Position = s.Length;
+            await s.WriteAsync(buffer, 0, BlockSize);
+
+            return seq;
+        }
+
+        private async Task<string> GetSlogIdWithSeqAsync(string authorId, int seq)
+        {
+            var offset = (seq - 1) * BlockSize;
+
+            var filename = Const.ContentAuthorSlogSeqFilename.Format(
+                authorId);
+            CreateIfNonExistPath(filename);
+            using var s = File.OpenRead(filename);
+            var buffer = new byte[BlockSize];
+            s.Position = offset;
+            await s.ReadAsync(buffer, 0, BlockSize);
+            var slogId = GetString(buffer);
+            return slogId;
+        }
+
+        private static string GetString(byte[] buffer)
+        {
+            var length = 0;
+            for (; length < BlockSize; length++)
+                if (buffer[length] == 0)
+                    break;
+            var result = Encoding.UTF8.GetString(buffer, 0, length);
+            return result;
         }
 
         public static IStorage Get(string rootPath) => new FileStorage(rootPath);

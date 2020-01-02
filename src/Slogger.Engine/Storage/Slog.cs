@@ -43,5 +43,9 @@ namespace Slogger.Engine.Storage
         /// etc) group1/group2/group3
         /// </summary>
         public string CategoryPath { get; set; }
+        /// <summary>
+        /// If Private is True, others will not be able to see it.
+        /// </summary>
+        public bool IsPrivate { get; set; }
     }
 }

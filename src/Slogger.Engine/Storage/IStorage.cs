@@ -71,7 +71,7 @@ namespace Slogger.Engine.Storage
         /// <param name="startIndex"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        IAsyncEnumerable<Slog> GetSlogsAsync(SlogSearchFilter searchFilter, string filter, SlogMode mode, int startIndex = 0, int count = 1);
+        IAsyncEnumerable<Slog> GetSlogsAsync(SlogSearchFilter searchFilter, string filter, SlogMode mode = SlogMode.Full, string authorId = "", int startIndex = 0, int count = 1);
         /// <summary>
         /// Get the Slog information.
         /// </summary>
@@ -153,12 +153,15 @@ namespace Slogger.Engine.Storage
     /// <summary>
     /// Slog search filters
     /// </summary>
+    [Flags]
     public enum SlogSearchFilter
     {
-        All,
-        Author,
-        Tag,
-        Team
+        None        = 0b_00000,
+        Tag         = 0b_00001,
+        Team        = 0b_00010,
+        Subject     = 0b_00100,
+        Contents    = 0b_01000,
+        All         = 0b_01111
     }
 
     /// <summary>
@@ -166,8 +169,8 @@ namespace Slogger.Engine.Storage
     /// </summary>
     public enum SlogMode
     {
-        Summary,
-        Full
+        Full,
+        Summary
     }
 
     /// <summary>

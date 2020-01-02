@@ -26,9 +26,42 @@ namespace Slogger.Test
                 ["FileStorage_3"] = Test_SloggerFileStorage_GetAuthorsAsync,
                 ["FileStorage_4"] = Test_SloggerFileStorage_UpdateSlogAsync,
                 ["FileStorage_5"] = Test_SloggerFileStorage_GetSlogAsync,
+                ["FileStorage_6"] = Test_SloggerFileStorage_GetSlogAsync2,
+                ["FileStorage_7"] = Test_SloggerFileStorage_GetSlogsAsync,
             };
             
-            await testFunctions["FileStorage_5"]();
+            await testFunctions["FileStorage_7"]();
+        }
+
+        private static async Task Test_SloggerFileStorage_GetSlogsAsync()
+        {
+            var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
+            var s = FileStorage.Get(rootPath);
+
+            var list = s.GetSlogsAsync(SlogSearchFilter.None, "", SlogMode.Full, "dimohy", 1, 2);
+            await foreach (var slog in list)
+            {
+                Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
+            }
+        }
+
+        private static async Task Test_SloggerFileStorage_GetSlogAsync2()
+        {
+            var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
+            var s = FileStorage.Get(rootPath);
+
+            var sum = 0;
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 10000; i++)
+            {
+                var slog = await s.GetSlogAsync(SlogKeyType.Uuid, "ac9bb7d8-9fab-4141-ac79-1faada4c5db4");
+                sum += slog.Seq;
+                //Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
+            }
+            sw.Stop();
+            Console.WriteLine(sw.ElapsedMilliseconds);
+
+            Console.WriteLine(sum);
         }
 
         private static async Task Test_SloggerFileStorage_GetSlogAsync()
@@ -36,13 +69,13 @@ namespace Slogger.Test
             var rootPath = new FileInfo(Process.GetCurrentProcess().MainModule.FileName).Directory.FullName;
             var s = FileStorage.Get(rootPath);
 
-            var slog = await s.GetSlogAsync(SlogKeyType.Id, "dimohy@naver.com_202001012312");
+            var slog = await s.GetSlogAsync(SlogKeyType.Id, "dimohy_202001020238");
             Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
 
-            slog = await s.GetSlogAsync(SlogKeyType.Seq, "2");
+            slog = await s.GetSlogAsync(SlogKeyType.Seq, "dimohy/1");
             Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
 
-            slog = await s.GetSlogAsync(SlogKeyType.Uuid, "3e7ed423-db34-4ff9-bcfa-e35f9f190604");
+            slog = await s.GetSlogAsync(SlogKeyType.Uuid, "ac9bb7d8-9fab-4141-ac79-1faada4c5db4");
             Console.WriteLine($"{slog.Id}, {slog.Seq}, {slog.Uuid}");
         }
 
@@ -53,7 +86,7 @@ namespace Slogger.Test
 
             var slog = new Slog
             {
-                AuthorId = "dimohy@naver.com",
+                AuthorId = "dimohy",
                 Subject = "제목",
                 Contents = "내용",
                 CategoryPath = "test",

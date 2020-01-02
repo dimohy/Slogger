@@ -27,6 +27,7 @@ namespace Slogger.Engine.FileStorage
             public static readonly string ContentsAuthorSlogPathFormat = $"{ContentsAuthorPathFormat}/{{1}}/{{2}}";
             public static readonly string ContentsAuthorSlogFilenameFormat = $"{ContentsAuthorSlogPathFormat}/{{3}}.json";
             public static readonly string ContentsAuthorSlogFilesPathFormat = $"{ContentsAuthorSlogPathFormat}/{{3}}.files";
+            public static readonly string ContentAuthorSlogSeqFilename = $"{ContentsAuthorPathFormat}/Seq.data";
             public static readonly string ContentsAuthorSlogCommentsFilenameFormst = $"{ContentsAuthorPathFormat}/{{3}}.comments.json";
 
             // Slogger metadata directory and files
@@ -42,7 +43,6 @@ namespace Slogger.Engine.FileStorage
             public static readonly string CacheTagFilenameFormat = $"{CacheTagsPath}/{{0}}.data";
 
             // Slog Cache
-            public static readonly string CacheSeqFilename = $"{CachePath}/Seq.data";
             public static readonly string CacheUuidsPath = $"{CachePath}/Uuids";
             public static readonly string CacheUUidFilenameFormat = $"{CacheUuidsPath}/{{0}}/{{1}}/{{2}}/{{3}}/{{4}}.txt";
             public static readonly string CacheSlogPathFormat = $"{CachePath}/{{0}}/{{1}}/{{2}}";
